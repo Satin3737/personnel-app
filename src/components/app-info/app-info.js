@@ -1,11 +1,13 @@
 import './app-info.css';
 
-function AppInfo() {
+function AppInfo(props) {
+    const {totalPersonnel, personnelGotBonus} = props;
+
     return (
         <div className="app-info">
             <h1>Personnel company info</h1>
-            <h2>Total number of personnel</h2>
-            <h2>Get a bonus: </h2>
+            <h2>Total number of personnel: {personnelGotBonus}</h2>
+            <h2>Get a bonus: {totalPersonnel}</h2>
         </div>
     );
 }

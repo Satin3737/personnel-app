@@ -1,12 +1,17 @@
 import './personnel-list.css';
 import PersonnelListItem from "../personnel-list-item/personnel-list-item";
 
-function PersonnelList({data}) {
+function PersonnelList({data, onDelete, onToggleProp}) {
 
     const listItems = data.map(item => {
+        const {id, ...itemProps} = item;
         return (
-            // <PersonnelListItem name={item.name} salary={item.salary} />
-            <PersonnelListItem {...item} />
+            <PersonnelListItem
+                key={id}
+                {...itemProps}
+                onDelete={() => onDelete(id)}
+                onToggleProp={(e) => onToggleProp(id, e.currentTarget.getAttribute('data-toggle'))}
+            />
         );
     });
 
