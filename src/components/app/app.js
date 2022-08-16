@@ -6,16 +6,15 @@ import PersonnelList from "../personnel-list/personnel-list";
 import AppForm from "../app-form/app-form";
 import {Component} from "react";
 import nextId from "react-id-generator";
+import {myPersonnel} from "../../appData/data";
 
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [
-                {name: 'John C.', salary: 800, increase: false, rise: true,  id: nextId()},
-                {name: 'Alex M.', salary: 3000, increase: true, rise: false,  id: nextId()},
-                {name: 'Carl w.', salary: 5000, increase: false, rise: false,  id: nextId()}
-            ]
+            data: myPersonnel,
+            term: '',
+            filter: 'all'
         }
     }
 
@@ -54,23 +53,56 @@ class App extends Component {
         }));
     }
 
-    // onToggleRise = (id) => {
-    //     this.setState(({data}) => {
-    //         const index = data.findIndex(obj => obj.id === id);
-    //         const old = data[index];
-    //         const newItem = {...old, rise: !old.rise};
-    //         const newArr = [...data.slice(0, index), newItem, ...data.slice(index + 1)];
-    //
-    //         return {
-    //             data: newArr
-    //         }
-    //     });
-    // }
+    searchPersonnel = (data, term) => {
+        if (term.length === 0) {
+            return data;
+        }
+
+        return data.filter(item => {
+            return item.name.indexOf(term) > -1;
+        });
+    }
+
+    FilterUpdate = (data, filter) => {
+        switch (filter) {
+            case 'rise':
+                return data.filter(item => item.rise);
+            case 'salary':
+                return data.filter(item => item[filter] > 1000);
+            case 'all':
+                return data;
+            default:
+                return data;
+        }
+
+    }
+
+    onUpdateSearch = (term) => {
+        this.setState({term});
+    }
+
+    onFiltersChange = (filter) => {
+        this.setState({filter});
+    }
+
+    onSalaryChange = (id, salary) => {
+        this.setState(({data}) => ({
+            data: data.map(obj => {
+                if (obj.id === id) {
+                    return {...obj, salary: salary};
+                }
+                return obj;
+            })
+        }));
+    }
 
 
     render() {
-        const totalPersonnel = this.state.data.length;
-        const personnelGotBonus = this.state.data.filter(obj => obj.increase).length;
+        const {data, term, filter} = this.state;
+        const totalPersonnel = data.length;
+        const personnelGotBonus = data.filter(obj => obj.increase).length;
+        const searchData = this.searchPersonnel(data, term);
+        const visibleData = this.FilterUpdate(searchData, filter);
 
         return (
             <div className="app">
@@ -79,13 +111,19 @@ class App extends Component {
                     personnelGotBonus={personnelGotBonus}
                 />
                 <div className="search-panel">
-                    <AppSearch/>
-                    <AppFilter/>
+                    <AppSearch
+                        onUpdateSearch={this.onUpdateSearch}
+                    />
+                    <AppFilter
+                        filter={filter}
+                        onFiltersChange={this.onFiltersChange}
+                    />
                 </div>
                 <PersonnelList
-                    data={this.state.data}
+                    data={visibleData}
                     onDelete={this.deleteItem}
                     onToggleProp={this.onToggleProp}
+                    onSalaryChange={this.onSalaryChange}
                 />
                 <AppForm
                     onCreate={this.createItem}
